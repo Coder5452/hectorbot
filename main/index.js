@@ -32,7 +32,20 @@ client.on('message', async inMessage => {
   
   // Pull server queue from master, if it doesn't exists create a new one and load config
   var inServerQueue = await lib.queue.get(inMessage.guild.id);
-  if ( !inServerQueue ) inServerQueue = await lib.loadQueue(inMessage, inServerQueue);
+  if ( !inServerQueue )
+    await lib.loadQueue(inMessage, inServerQueue)
+      .then(res=>inServerQueue=res)
+      .catch(err=>inServerQueue=err);
+  
+  // Check if the server has role specififc commands enabled
+  if ( inServerQueue.roles.length > 0 ) {
+    const hasRole = (role) => inMessage.member.roles.cache.has(role);
+    if ( !inServerQueue.roles.some(hasRole) ) {
+      inMessage.channel.send('You do not have the DJ role.');
+      return;
+    }
+  }
+  
   // Parse the incoming command
   var inCmd = await lib.parseMsg( inMessage.content );
   
@@ -40,24 +53,42 @@ client.on('message', async inMessage => {
     // Queue main
     case 'q':
     case 'queue':
-      lib.queueMain(inMessage,inServerQueue,inCmd).then(res=>inMessage.channel.send(res)).catch(err=>console.error(err));
+      lib.queueMain(inMessage,inServerQueue,inCmd)
+        .then(res=>inMessage.channel.send(res))
+        .catch(err=>console.error(err));
       break;
       
     // DJ main
     case 'd':
     case 'dj':
-      lib.dj(inMessage,inServerQueue,inCmd).then(res=>inMessage.channel.send(res)).catch(err=>console.error(err));
+      lib.dj(inMessage,inServerQueue,inCmd)
+        .then(res=>inMessage.channel.send(res))
+        .catch(err=>console.error(err));
+      break;
+      
+    // Role main
+    case 'r':
+    case 'role':
+    case 'roles':
+      lib.roleMain(inMessage,inServerQueue,inCmd)
+        .then(res=>inMessage.channel.send(res))
+        .catch(err=>console.error(err));
       break;
       
     // Test main
     case 't':
     case 'test':
-      lib.testMain(inMessage,inServerQueue,inCmd,client).then(res=>inMessage.channel.send(res)).catch(err=>console.error(err));
+      lib.testMain(inMessage,inServerQueue,inCmd,client)
+        .then(res=>inMessage.channel.send(res))
+        .catch(err=>console.error(err));
       break;
       
+    // Help command
     case 'h':
     case 'help':
-      lib.help(inMessage).then(res=>inMessage.author.dmChannel.send(res)).catch(err=>console.error(err));
+      lib.help(inMessage)
+        .then(res=>inMessage.author.dmChannel.send(res))
+        .catch(err=>console.error(err));
       break;
       
       
@@ -70,7 +101,9 @@ client.on('message', async inMessage => {
       
     // Purge command
     case 'purge':
-      lib.custPurge( inMessage, inCmd ).then(result=>inMessage.channel.send(result)).catch(err=>console.error(err));
+      lib.custPurge( inMessage, inCmd )
+        .then(result=>inMessage.channel.send(result))
+        .catch(err=>console.error(err));
       break;
       
     // Trello command to allow easy access to dev page

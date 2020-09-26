@@ -126,7 +126,7 @@ function createQueue( message ) {
 }
 
 // remove song from queue
-async function queueRemove( message, serverQueue, args ) {
+function queueRemove( message, serverQueue, args ) {
   return new Promise((resolve,reject)=>{
     // If no song specified reject
     if(args.length<3) reject('Please specify which song to remove.');
@@ -280,15 +280,17 @@ function play( message, serverQueue ) {
     if ( song.type == 0 ) {
       // Attempt to connect to youtube and play the song
       try {
-        serverQueue.playing = true;
+        serverQueue.playing = await true;
         serverQueue.connection = await serverQueue.voiceChannel.join();
         serverQueue.dispatcher = serverQueue.connection
           .play( await ytdl(song.url, {highWaterMark: 1<<25}), { type: 'opus' } )
           .on('finish', () => {
             serverQueue.songs.shift();
             saveQueue( message, serverQueue ).catch( err => console.error(err));
-            if ( !serverQueue.songs[0] ) stop(message, serverQueue).catch(error=>console.error(error));
-            else if ( serverQueue.playing ) play(message, serverQueue ).catch(error=>console.error(error));
+            if ( serverQueue.songs.length < 1 )
+              stop(serverQueue).catch(err=>console.error(err));
+            else if ( serverQueue.playing )
+              play(message, serverQueue).catch(error=>console.error(error));
           })
           .on('error', error=>{reject(error); return;});
         serverQueue.dispatcher.setVolume( serverQueue.volume );
@@ -306,6 +308,7 @@ function stop( serverQueue ) {
   return new Promise((resolve, reject)=>{
     try {
       if (serverQueue.playing) {
+        serverQueue.playing = false;
         serverQueue.songs = [];
         serverQueue.dispatcher.end();
         serverQueue.voiceChannel.leave();
@@ -436,6 +439,85 @@ function localPlay( message, serverQueue, args ) {
 }
 
 
+/* Role commands */
+// Role cmd parser
+function roleMain( message, serverQueue, args ) {
+  return new Promise(async(resolve,reject)=>{
+    switch (args[1]) {
+      case 'add':
+        addRole( message, serverQueue, args )
+          .then(res=>resolve(res))
+          .catch(err=>reject(err));
+        break;
+        
+      case 'rm':
+      case 'remove':
+        remRole( message, serverQueue, args )
+          .then(res=>resolve(res))
+          .catch(err=>reject(err));
+        break;
+        
+      case 'ls':
+      case 'list':
+        listRole( serverQueue )
+          .then(res=>resolve(res))
+          .catch(err=>reject(err));
+        break;
+        
+      default:
+        resolve('Usage: .role <add/remove/list>');
+        break;
+    }
+  });
+}
+
+// Add role
+function addRole( message, serverQueue, args ) {
+  return new Promise((resolve,reject)=>{
+    try {
+      serverQueue.roles.push(args[2].slice(3,-1));
+      queue.set( message.guild.id, serverQueue );
+      resolve(args[2] + ' added to the role list');
+    }catch(err){reject(err);}
+  });
+}
+
+function remRole( message, serverQueue, args ) {
+  return new Promise((resolve,reject)=>{
+    try {
+      if ( serverQueue.roles.length < 1 ) {resolve('No roles to remove');return;}
+      else if ( args.length < 3 ) {resolve('Need a role to remove')}
+      else {
+        try {
+          // Remove song and resolve
+          let num = args[2]-1, name = serverQueue.roles[num];
+          serverQueue.roles.splice( num, 1 );
+          queue.set( message.guild.id, serverQueue );
+          
+          resolve(''+name+' was removed.');
+        }catch(err){reject(err);}
+      }
+    } catch(e){reject(e);}
+  });
+}
+
+// List roles
+function listRole( serverQueue ) {
+  return new Promise((resolve,reject)=>{
+    try {
+      let roles = serverQueue.roles, out = '';
+      for ( var i = 0; i < roles.length; i++ )
+        out += '`'+(i+1)+'.`\t<@&'+roles[i]+'>\n';
+      
+      if (out == '')
+        out = 'No roles.'
+      
+      resolve(out);
+    }catch(err){reject(err);}
+  });
+}
+
+
 /* Owner commands */
 // Test main
 function testMain( message, serverQueue, args, client ) {
@@ -466,7 +548,7 @@ function testMain( message, serverQueue, args, client ) {
           break;
           
         default:
-          resolve('Not implemented');
+          resolve('Bruh');
           break;
       }
     }
@@ -589,6 +671,6 @@ function help( message ) {
 module.exports = {
   queue, saveQueue, loadQueue,
   parseMsg,
-  queueMain, dj, testMain, help,
+  queueMain, dj, roleMain, testMain, help,
   queryGel, repeat, custPurge,
 };
