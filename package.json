@@ -1,0 +1,38 @@
+{
+  "name": "hector-bot",
+  "version": "1.0.0",
+  "description": "music bot",
+  "main": "index.js",
+  "dependencies": {
+    "@discordjs/opus": "^0.3.3",
+    "bufferutil": "^4.0.2",
+    "discord.js": "^12.4.1",
+    "ffmpeg": "^0.0.4",
+    "ffmpeg-static": "^4.2.7",
+    "fluent-ffmpeg": "^2.1.2",
+    "libsodium-wrappers": "^0.7.8",
+    "music-metadata": "^7.4.0",
+    "node-fetch": "^2.6.1",
+    "node-gyp": "^7.1.2",
+    "npm": "^6.14.8",
+    "prism-media": "^1.2.2",
+    "utf-8-validate": "^5.0.3",
+    "youtube-sr": "^2.0.1",
+    "ytdl-core": "^4.0.5",
+    "ytpl": "^1.0.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Coder5452/hectorbot.git"
+  },
+  "author": "Coder5452",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Coder5452/hectorbot/issues"
+  },
+  "homepage": "https://github.com/Coder5452/hectorbot#readme"
+}
