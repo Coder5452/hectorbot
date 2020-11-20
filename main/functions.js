@@ -7,8 +7,9 @@ const {
 
 // Import dependencies
 const fs = require('fs');
-const ytdl = require('ytdl-core-discord');
-const ytsr = require('ytsr');
+const ytdl = require('ytdl-core');
+const ytsr = require('youtube-sr');
+const ytpl = require('ytpl');
 const fetch = require('node-fetch');
 const path = require('path');
 const mm = require('music-metadata');
@@ -156,21 +157,6 @@ function clearQueue( message, serverQueue ) {
   });
 }
 
-// put song into queue
-function queueSong( message, serverQueue, inSongs ) {
-  return new Promise( async (resolve, reject ) => {
-    try {
-      // Add all of the songs from inSongs 
-      for( let i = 0; i < inSongs.length; i++ ) {
-        serverQueue.songs.push( inSongs[i] )
-        message.channel.send('Added **'+inSongs[i].title+'** to the queue.');
-      }
-      // Resolve the new queue
-      resolve(serverQueue);
-    }catch (err) {reject(err);}
-  });
-}
-
 
 
 /* DJ Functions */
@@ -179,24 +165,34 @@ function dj( message, serverQueue, args ) {
   return new Promise(async(resolve,reject)=>{
     switch (args[1]) {
       case 'add':
-        search(message,serverQueue,args).then(res=>queue.set(message.guild.id,res)).catch(err=>reject(err));
+        search(message,serverQueue,args)
+          .then(res=>resolve(res))
+          .catch(err=>reject(err));
         break;
         
       case 'play':
-        play(message,serverQueue,args).then(res=>queue.set(message.guild.id,res)).catch(err=>reject(err));
+        play(message,serverQueue,args)
+          .then(res=>queue.set(message.guild.id,res))
+          .catch(err=>resolve(err));
         break;
         
       case 'stop':
-        stop( serverQueue ).then(res=>resolve(res)).catch(err=>reject(err));
+        stop( serverQueue )
+          .then(res=>resolve(res))
+          .catch(err=>reject(err));
         break;
         
       case 'skip':
-        skip(message,serverQueue).then(res=>resolve(res)).catch(err=>reject(err));
+        skip(message,serverQueue)
+          .then(res=>resolve(res))
+          .catch(err=>reject(err));
         break;
         
       case 'vol':
       case 'volume':
-        volume(message,serverQueue,args).then(res=>resolve(res)).catch(err=>reject(err));
+        volume(message,serverQueue,args)
+          .then(res=>resolve(res))
+          .catch(err=>reject(err));
         break;
         
       default:
@@ -206,51 +202,94 @@ function dj( message, serverQueue, args ) {
   });
 }
 
+// put song into queue
+function queueSong( message, serverQueue, inSongs ) {
+  return new Promise( async (resolve, reject ) => {
+    var outputTxt = '';
+    try {
+      // Add all of the songs from inSongs 
+      for( let i = 0; i < inSongs.length; i++ ) {
+        serverQueue.songs.push( inSongs[i] )
+        outputTxt += 'Added **'+inSongs[i].title+'** to the queue.\n';
+      }
+      // Resolve the new queue
+      queue.set( message.guild.id, serverQueue );
+      resolve( outputTxt );
+    }catch (err) {reject(err);}
+  });
+}
+
 // Search command
 function search( message, serverQueue, args ) {
   return new Promise(async(resolve, reject) => {
     var addSongs = [];
     if ( args.length < 2 ) reject('Need something to search for');
+    else if ( args[2].indexOf('&list=') != -1 ) {
+      // Search songs through youtube
+      for ( let i = 2; i < args.length; i++ ) {
+        await ytSearchPl(args[i])
+          .then(res=>addSongs = addSongs.concat(res))
+          .catch(err=>{reject(err);return;});
+      }
+    }
     else {
       // Search songs through youtube
       for ( let i = 2; i < args.length; i++ ) {
-        await ytSearch(message,args[i]).then(res=>addSongs.push(res)).catch(err=>resolve(err));
+        await ytSearch(args[i])
+          .then(res=>addSongs.push(res))
+          .catch(err=>reject(err));
       }
-      
-      // Queue the new songs
-      queueSong(message,serverQueue,addSongs)
-      .then(res=>{
-        queue.set( message.guild.id, res);
-        if (!serverQueue.playing) play(message,serverQueue).then(res1=>resolve(res1)).catch(err1=>reject(err1))
-        else resolve(res);
-      })
-      .catch(err=>reject(err));
     }
+    // Queue the new songs
+    queueSong(message,serverQueue,addSongs)
+      .then(res=>{
+        if (!serverQueue.playing)
+          play(message,serverQueue).catch(err1=>{reject(err1);return;});
+        resolve(res);
+        })
+      .catch(err=>reject(err));
   });
 }
 
 // Search youtube
-function ytSearch( message, srchStr ) {
-  return new Promise( async (resolve, reject ) => {
-    let srch;
-    // Search youtube for provided string
-    await ytsr.getFilters(srchStr).then(async filter=>{
-      filter = filter.get('Type').find(o=>o.name==='Video');
-      const options = {
-        limit: 1,
-        nextpageRef: filter.ref,
-      }
+function ytSearch( srchStr ) {
+  return new Promise( async (resolve, reject) => {
+    try {
+      let srch;
+      // Search youtube for provided string
+      await ytsr.search( srchStr, { limit: 1 } )
+        .then(vid=>srch=vid[0])
+        .catch(err=>{reject(err);return;});
       
-      srch = await ytsr(null, options);
-      srch = srch.items[0];
-    }).catch(err=>console.error(err));
-    
-    resolve({
-      title: srch.title,
-      url: srch.link,
-      type: 0,
-    });
+      resolve({
+        title: srch.title,
+        url: "http://www.youtube.com/watch?v=" + srch.id,
+        type: 0,
+      });
+    }catch(err){reject(err)}
   });
+}
+
+// Test
+function ytSearchPl(srchStr) {
+  return new Promise(async(resolve,reject)=>{
+    try {
+      let playlist;
+      await ytpl(srchStr)
+        .then(plls=>playlist=plls.items)
+        .catch(err=>{reject(err);return;});
+      
+      let returnPlaylist = [];
+      for ( let i = 0; i < playlist.length; i++ ) {
+        returnPlaylist[i] = {
+          title: playlist[i].title,
+          url: playlist[i].url_simple,
+          type: 0,
+        }
+      }
+      resolve(returnPlaylist);
+    }catch(err){reject(err);}
+  })
 }
 
 // Return song object when provided absolute path
@@ -280,10 +319,10 @@ function play( message, serverQueue ) {
     if ( song.type == 0 ) {
       // Attempt to connect to youtube and play the song
       try {
-        serverQueue.playing = await true;
+        serverQueue.playing = true;
         serverQueue.connection = await serverQueue.voiceChannel.join();
         serverQueue.dispatcher = serverQueue.connection
-          .play( await ytdl(song.url, {highWaterMark: 1<<25}), { type: 'opus' } )
+          .play( await ytdl(song.url, {highwatermark: 1<<25, quality: 'highestaudio'}) )
           .on('finish', () => {
             serverQueue.songs.shift();
             saveQueue( message, serverQueue ).catch( err => console.error(err));
@@ -294,7 +333,8 @@ function play( message, serverQueue ) {
           })
           .on('error', error=>{reject(error); return;});
         serverQueue.dispatcher.setVolume( serverQueue.volume );
-        message.channel.send('Started playing: **' + song.title + '**\n<' + song.url + '>');
+        serverQueue.dispatcher.on('start', ()=>message.channel.send('Started playing: **' + song.title + '**\n<' + song.url + '>'));
+        serverQueue.dispatcher.on('error', (err)=>console.error(err));
         resolve(serverQueue);
       }catch(err){reject(err);}
     }else {
@@ -321,7 +361,7 @@ function stop( serverQueue ) {
 // Skip function
 function skip( message, serverQueue ) {
   return new Promise((resolve,reject)=>{
-    if ( serverQueue.songs.length < 1 ) {
+    if ( serverQueue.songs.length < 2 ) {
       stop( serverQueue );
       resolve('No songs left in queue');
     } else {
@@ -341,14 +381,15 @@ function volume( message, serverQueue, args ) {
     
     try {
       serverQueue = queue.get( message.guild.id );
-      serverQueue.volume = args[2];
+      console.log( args[2]/100 );
+      serverQueue.volume = args[2]/100;
       
       try {serverQueue.dispatcher.setVolume(serverQueue.volume);}
       catch(err){console.log('No dispatcher')}
       
       queue.set( message.guild.id, serverQueue );
       saveQueue( message, serverQueue );
-      resolve('Saved volume at *'+args[2]+'*.');
+      resolve('Saved volume at *'+args[2]+'%*.');
     }catch(err){resolve(err);}
   });
 }
@@ -476,12 +517,13 @@ function addRole( message, serverQueue, args ) {
   return new Promise((resolve,reject)=>{
     try {
       serverQueue.roles.push(args[2].slice(3,-1));
-      queue.set( message.guild.id, serverQueue );
+      saveQueue( message, serverQueue );
       resolve(args[2] + ' added to the role list');
     }catch(err){reject(err);}
   });
 }
 
+// Remove role
 function remRole( message, serverQueue, args ) {
   return new Promise((resolve,reject)=>{
     try {
@@ -492,7 +534,7 @@ function remRole( message, serverQueue, args ) {
           // Remove song and resolve
           let num = args[2]-1, name = serverQueue.roles[num];
           serverQueue.roles.splice( num, 1 );
-          queue.set( message.guild.id, serverQueue );
+          saveQueue( message, serverQueue );
           
           resolve(''+name+' was removed.');
         }catch(err){reject(err);}
@@ -547,8 +589,16 @@ function testMain( message, serverQueue, args, client ) {
           reconnect(message,client).then(res=>resolve(res)).catch(err=>reject(err));
           break;
           
+        case 'repeat':
+          repeat( message, args );
+          break;
+          
+        case 'debug':
+          client.on('debug', console.log);
+          break;
+          
         default:
-          resolve('Bruh');
+          resolve('Invalid.').then(res=>resolve(res)).catch(err=>reject(err));
           break;
       }
     }
@@ -623,11 +673,15 @@ async function queryGel( message, args ) {
 }
 
 // Repeat command
-function repeat( message, serverQueue, args ) {
-  for ( var i = 0; i < args[1]; i++ ) {
-    message.channel.send(args[2]);
-  }
-  return;
+function repeat( message, args ) {
+  return new Promise((resolve,reject)=>{
+    try {
+      for ( var i = 0; i < args[2]; i++ ) {
+        message.channel.send(args[3]);
+      }
+    }catch(err){reject(err);}
+    resolve('Finished.');
+  });
 }
 
 // Purge command

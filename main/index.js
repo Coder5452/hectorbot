@@ -11,14 +11,10 @@ const lib = require('./functions.js');
 const client = new Discord.Client();
 client.login(token);
 
-
-
-// Debug console flags
-client.once('ready', () => {
-  console.log('\nReady\n');
+// Flag when bot is ready to run
+client.on('ready', ()=>{
+  console.log(`\nReady, logged in as ${client.user.tag}\n`)
 });
-
-//client.on('debug', console.log);
 
 
 
@@ -36,6 +32,7 @@ client.on('message', async inMessage => {
     await lib.loadQueue(inMessage, inServerQueue)
       .then(res=>inServerQueue=res)
       .catch(err=>inServerQueue=err);
+  
   
   // Check if the server has role specififc commands enabled
   if ( inServerQueue.roles.length > 0 ) {

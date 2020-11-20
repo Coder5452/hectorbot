@@ -1,6 +1,6 @@
 {
   "name": "hector-bot",
-  "version": "1.0.0",
+  "version": "0.1.1",
   "description": "music bot",
   "main": "index.js",
   "dependencies": {
@@ -23,7 +23,7 @@
   },
   "devDependencies": {},
   "scripts": {
-    "test": "node index.js"
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
