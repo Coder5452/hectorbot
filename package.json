@@ -5,8 +5,6 @@
   "main": "index.js",
   "dependencies": {
     "@discordjs/opus": "^0.3.3",
-    "@nodegui/nodegui": "http://master-release.nodegui.org",
-    "@nodegui/qode": "^2.1.0",
     "bufferutil": "^4.0.2",
     "discord.js": "^12.5.1",
     "ffmpeg": "0.0.4",
