@@ -63,16 +63,22 @@ client.on('message', async inMessage => {
   var inCMD = await parseMsg( inMessage.content, true );
 
   // Find correct command and do the stuff!
-  cmdLib[inCMD[0]]( inMessage, inServerQueue, inCMD, client )
-    .then(res=>{if(res!=''){inMessage.channel.send(res)}})
-    .catch(err=>{
-      if ( err instanceof ReferenceError ) {
-        inMessage.channel.send(`Not a command:\n**${inCMD.join(' ')}**`);
-        console.error(err);
-      }
-      else
-        console.error(err);
-    });
+  try {
+    cmdLib[inCMD[0]]( inMessage, inServerQueue, inCMD, client )
+      .then(res=>{
+        if(res!='')
+          inMessage.channel.send(res)
+            .then(msg=>msg.delete({timeout:60000,reason:"bot message clean up"}).catch(err=>{throw err;}))
+            .catch(err=>{throw err;})
+      })
+      .catch(err=>{throw err;});
+  }catch(err){
+    if ( err instanceof TypeError )
+      inMessage.channel.send(`Not a command: **${inCMD.join(' ')}**`);
+    else
+      console.error(err);
+  }
+  inMessage.delete({timeout:120000,reason:"bot message clean up"}).catch(err=>console.error(err));
 });
 
 /* Slash Command Parsing */
@@ -92,7 +98,7 @@ const cmdLine = readline.createInterface({
   tabSize: 2,
   completer:
   (line)=>{
-    const completions = 'autoLogin globalSay login shutdown'.split(' ');
+    const completions = 'autoLogin clear globalSay login shutdown'.split(' ');
     const hits = completions.filter((c)=>c.startsWith(line));
     return [hits.length ? hits : completions, line ];
   },
@@ -124,6 +130,11 @@ cmdLine.on('line', async (input)=>{
 
         console.log(`Sent message: "${inCMD[1]}"\n`);
       }catch(err){console.error(err)}
+      break;
+
+    case 'clear':
+      console.clear();
+      console.log(`Console cleared.\n`)
       break;
 
     case 'shutdown':

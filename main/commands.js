@@ -44,7 +44,7 @@ function queue( message, serverQueue, inCMD, client ) {
           break;
 
         default:
-          return resolve(`${inCMD.join(' ')} is not a valid command.`);
+          return resolve(`Not a command: **${inCMD.join(' ')}**`);
           break;
       }
     }
@@ -114,7 +114,7 @@ function dj( message, serverQueue, inCMD, client ) {
           break;
 
         default:
-          return resolve(`Not a command:\n**${inCMD.join(' ')}**`);
+          return resolve(`Not a command: **${inCMD.join(' ')}**`);
           break;
       }
   });
@@ -182,7 +182,7 @@ function test( message, serverQueue, inCMD, client ) {
             break;
 
           default:
-            return resolve(`Invalid command: ${inCMD.join(' ')}`);
+            return resolve(`Not a command: **${inCMD.join(' ')}**`);
             break;
         }
       }catch(err){reject(err)}
@@ -194,18 +194,29 @@ function mod( message, serverQueue, inCMD, client ) {
 	return new Promise(async(resolve,reject)=>{
 		switch (inCMD[1]) {
 			case 'prune':
-				// do stuff
+        if ( inCMD[2] = '' || typeof inCMD[2] === 'number' || inCMD[2] > 100 )
+          resolve('Third argument necessary and must be a number equal or less than 100.');
+        else
+          message.channel.bulkDelete(100, true)
+            .then(msgs=>resolve(`Deleted ${msgs.size} messages.`))
+            .catch(err=>reject(err));
 				break;
 
+      case 'clearChannel':
+        var channel = message.channel;
+        channel.clone();
+        channel.delete();
+
 			default:
-				return resolve(`Invalid command: ${inCMD.join(' ')}`);
+				return resolve(`Not a command: **${inCMD.join(' ')}**`);
 		}
 	});
 }
 
 // Export file functions
 module.exports = {
-  queue, dj, role, test, mod
+  queue, dj, role, test, mod,
+  sleep
 };
 
 
@@ -397,5 +408,12 @@ function ytSearchPl( playlistURL ) {
         })
         .catch(err=>{throw err;});
     }catch(err){return reject(err)}
+  });
+}
+
+// Wait function for rate limiting
+function sleep( milliseconds ) {
+  return new Promise((resolve,reject)=>{
+    setTimeout(resolve, milliseconds);
   });
 }
