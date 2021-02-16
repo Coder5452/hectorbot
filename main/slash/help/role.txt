@@ -1,0 +1,8 @@
+__Role Commands__:
+  Usage:  **add, remove, list**
+  **Add** - Adds a role to check for **(.role add @DJ)**
+    -If no roles are added, anyone can use the bot
+    -There's a limit of 5 roles to avoid slowing the bot
+  **Remove** - Removes a role to check for  **(.role remove 2)**
+    -Use list to find the numbers to remove a role
+  **List** - Provides a list of all roles **(.role list)**

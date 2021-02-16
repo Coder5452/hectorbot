@@ -1,0 +1,16 @@
+__DJ Commands__:
+  Commands:  **add**, **play**, **stop**, **skip**, **volume**, **pause**, **resume**, **info**, **suggest**
+  **Add** - Enqueues a song with a provided url or name **(.dj add "Billy Joel - Piano Man" or .dj add <https://www.youtube.com/watch?v=ENXvZ9YRjbo>)**
+    -All song names need to be wrapped in quotes
+    -Will add as many songs as you put after add
+  **Play** - Starts playing any songs in the queue **(.dj play)**
+    -Songs will start automatically when enqueued, use this if that doesn't happen
+  **Stop** - Clears the queue and stops any music playing **(.dj stop)**
+  **Skip** - Starts playing the next song in the queue **(.dj skip)**
+  **Volume** - Sets the volume that the bot uses **(.dj vol 25)**
+    -Volume is on a scale of 0% to 100%
+  **Pause** - Stops music playback **(.dj pause)**
+  **Resume** - Continues music playback **(.dj resume)**
+  **Info** - Fetches title, decriptions, url, and thumbnail of current video **(.dj info)**
+  **Suggest** - Creates a list of similar songs to add to the queue **(.dj suggest)**
+    -After the list appears in chat, send another message with the number of the song you want

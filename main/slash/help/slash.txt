@@ -1,0 +1,5 @@
+***Slash Command Help***
+Too use the slash commands just put a slash**(/)** in the text box in discord.
+Discord will show you a list of all commands you can use under the **HECTOR** section.
+  -All commands have descriptions that explain what they do.
+  -You can use tab to autocomplete commands.

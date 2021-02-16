@@ -1,0 +1,10 @@
+__Queue Commands__:
+  Commands:  **list, remove, move, shuffle, clear**
+  **List** - Displays all songs in the queue **(.queue list)**
+    -Use the arrow reactions to cycle through pages
+  **Remove** - Deletes a song from a given position in the queue **(.queue remove 2)**
+    -Use list to find a song's queue position
+  **Move** - Moves a song from one position to another **(.queue move 11 2)**
+  **Shuffle** - Rearranges the queue in random order **(.queue shuffle)**
+    -The first song in the queue will always stay in place to avoid playing it twice
+  **Clear** - Removes all songs from the queue **(.queue clear)**

@@ -1,0 +1,8 @@
+***Hector Bot Help List***
+
+Hector has a few categories of commands: **dj**, **queue**, and **role** commands.
+  -DJ commands deal with the playback of songs, use **/help dj** for more info.
+  -Queue commands change what songs the bot will play and in what order, use **/help queue** for more info.
+  -Role commands change what people are allowed to use the bot, use **/help roles** for more info.
+
+Hector's slash**(/)** commands will have short descriptions of what they do, make use of that when exploring the bot! 
