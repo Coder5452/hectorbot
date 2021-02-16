@@ -5,7 +5,7 @@ const eventEmitter = require('events');
 const djEvent = new eventEmitter();
 
 /* Command parser */
-function queue( message, serverQueue, inCMD, queue ) {
+function queue( message, serverQueue, inCMD, client ) {
   return new Promise((resolve,reject)=>{
     // Decline if user is not in a VC
     if ( !message.member.voice.channel )
@@ -51,7 +51,7 @@ function queue( message, serverQueue, inCMD, queue ) {
   });
 }
 
-function dj( message, serverQueue, inCMD, queue ) {
+function dj( message, serverQueue, inCMD, client ) {
   return new Promise(async(resolve,reject)=>{
     if ( !message.member.voice.channel )
       resolve('You must be in a voice channel to use this command.');
@@ -120,7 +120,7 @@ function dj( message, serverQueue, inCMD, queue ) {
   });
 }
 
-function role( message, serverQueue, inCMD, queue ) {
+function role( message, serverQueue, inCMD, client ) {
   return new Promise(async(resolve,reject)=>{
     switch (inCMD[1]) {
       case 'add': {
@@ -155,7 +155,7 @@ function role( message, serverQueue, inCMD, queue ) {
   });
 }
 
-function test( message, serverQueue, inCMD, queue, client ) {
+function test( message, serverQueue, inCMD, client ) {
   return new Promise(async(resolve,reject)=>{
     if ( message != null && message.author.id != 122902985314533379 )
       reject('Test commands are only available to owner');
@@ -177,6 +177,10 @@ function test( message, serverQueue, inCMD, queue, client ) {
             return resolve('Done.');
             break;
 
+          case 'scan':
+            console.log(await serverQueue.scanDir(inCMD[2]));
+            break;
+
           default:
             return resolve(`Invalid command: ${inCMD.join(' ')}`);
             break;
@@ -186,7 +190,7 @@ function test( message, serverQueue, inCMD, queue, client ) {
   });
 }
 
-function mod( message, serverQueue, inCMD ) {
+function mod( message, serverQueue, inCMD, client ) {
 	return new Promise(async(resolve,reject)=>{
 		switch (inCMD[1]) {
 			case 'prune':

@@ -384,4 +384,32 @@ module.exports.Queue = class Queue {
 
     return output;
   }
+
+  // Scan a directory and return object with all subDirs and .mp3 files
+  scanDir( targetDir ) {
+    return new Promise(async(resolve,reject)=>{
+      try {
+        let list = await fs.readdirSync( targetDir, {withFileTypes:true} );
+        let curDirLst = [];
+
+        for ( let i = 0; i < list.length; i++ ) {
+          if ( list[i].isDirectory() ) {
+            let dirCon;
+            await this.scanDir( targetDir + '\\' + list[i].name )
+              .then( result => dirCon = result )
+              .catch( error => {throw error;} );
+
+            curDirLst.push({
+              name: list[i].name,
+              content: dirCon,
+            });
+          }
+          else if ( list[i].name.endsWith('.mp3') )
+            curDirLst.push( list[i].name );
+        }
+
+        return resolve(curDirLst);
+      }catch(err){return reject(err)}
+    });
+  }
 }
