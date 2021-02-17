@@ -126,8 +126,8 @@ function role(message, serverQueue, inCMD, client) {
   return new Promise((resolve, reject) => {
     switch (inCMD[1]) {
       case 'add':
-        if (!inCMD[2]) resolve('Usage: .role add @ROLE');
-        else resolve(serverQueue.addRole(inCMD[2].slice(3, -1)));
+        if (message.mentions.roles.size === 0) resolve('Usage: **.role add @ROLE**');
+        else resolve(serverQueue.addRole(Array.from(message.mentions.roles.keys())[0]));
         break;
 
       case 'remove':
