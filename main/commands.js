@@ -227,11 +227,39 @@ function mod(message, serverQueue, inCMD, client) {
         }
         break;
 
-      case 'clearChannel': {
-        const channel = message.channel;
-        channel.clone();
-        channel.delete();
-      } break;
+      case 'clearChannel':
+        message.channel.send('This command will delete this channel and recreate it, are you sure you want to do this?')
+            .then((msg) => {
+              msg.react('✅').catch((err) => {console.error(err);});
+              msg.react('❎').catch((err) => {console.error(err);});
+
+              // Create reaction collector for action confirmation
+              const filter = (reaction, user) => (reaction.emoji.name === '❎' || reaction.emoji.name === '✅') && user.id === message.author.id;
+              const collector = msg.createReactionCollector(filter, { time: 20000 });
+
+              collector.on('collect', (reaction) => {
+                if (reaction.emoji.name === '✅') {
+                  // End the collector
+                  collector.stop('Clearing channel');
+
+                  // Clone channel and delete the old one
+                  const channel = message.channel;
+                  channel.clone()
+                      .then((newChannel) => {newChannel.send('Channel history cleared.');})
+                      .catch((err) => {reject(err);});
+                  channel.delete()
+                      .catch((err) => {reject(err);});
+                } else {
+                  collector.stop('Cancelled channel clearing.');
+                }
+              });
+
+              collector.on('end', (collected, reason) => {
+                msg.delete();
+                resolve(reason);
+              });
+            });
+        break;
 
       default:
         resolve(`Not a command: **${inCMD.join(' ')}**`);
