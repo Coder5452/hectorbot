@@ -131,8 +131,17 @@ function role(message, serverQueue, inCMD, client) {
         break;
 
       case 'remove':
-        if (!inCMD[2]) resolve('Usage: .role remove <role position>');
-        else resolve(serverQueue.removeRole(inCMD[2] - 1));
+        if (message.mentions.roles === 0) resolve('Usage: **.role remove @ROLE**');
+        else {
+          const serverRoles = serverQueue.getRoles();
+          const remRole = Array.from(message.mentions.roles.keys())[0];
+
+          serverRoles.forEach((element, index) => {
+            if (element === remRole) resolve(serverQueue.removeRole(index));
+          });
+
+          resolve(`No roles matching <@&${remRole}> found`);
+        }
         break;
 
       case 'list':
