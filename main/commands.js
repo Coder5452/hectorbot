@@ -192,7 +192,17 @@ function test(message, serverQueue, inCMD, client) {
             break;
 
           case 'scan':
-            console.log(serverQueue.scanDir(inCMD[2]));
+            resolve(serverQueue.scanDir(inCMD[2]));
+            break;
+
+          case 'emit':
+            client.emit(inCMD[2], message.member);
+            resolve(`Emitted: **${inCMD[2]}**`);
+            break;
+
+          case 'role':
+            console.log(message.mentions);
+            resolve('Done.');
             break;
 
           default:
