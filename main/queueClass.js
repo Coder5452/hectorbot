@@ -2,7 +2,7 @@ const fs = require('fs');
 const ytdl = require('ytdl-core-discord');
 const path = require('path');
 
-module.exports.Queue = class Queue {
+module.exports.Queue = class Queue  {
   constructor(inVC, inTC, inVol, inRoles) {
     this.voiceChannel = !inVC ? null : inVC;
     this.textChannel = inTC;
@@ -177,7 +177,7 @@ module.exports.Queue = class Queue {
       };
 
       fs.writeFileSync(
-          path.resolve(__dirname, `\\server_configs\\${this.guildID}.txt`),
+          path.join(__dirname, `\\server_configs\\${this.guildID}.txt`),
           JSON.stringify(saveData),
       );
 
@@ -393,7 +393,7 @@ module.exports.Queue = class Queue {
     }
 
     this.roles.push(role);
-    this.saveQueue(this.guildID);
+    this.saveQueue();
 
     return `Added <@&${role}> to the list.`;
   }
@@ -410,7 +410,7 @@ module.exports.Queue = class Queue {
 
     const role = this.roles[roleIndex];
     this.roles.splice(roleIndex, 1);
-    this.saveQueue(this.guildID);
+    this.saveQueue();
 
     return `Removed <@&${role}> from the list.`;
   }
