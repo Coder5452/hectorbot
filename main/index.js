@@ -57,9 +57,9 @@ client.on('message', async (inMessage) => {
 
   // Check if the server has role specififc commands enabled
   const roles = inServerQueue.getRoles();
-  if (roles.length < 1) {
+  if (roles.length !== 0) {
     const hasRole = (role) => inMessage.member.roles.cache.has(role);
-    if (roles.some(hasRole)) {
+    if (!roles.some(hasRole)) {
       inMessage.channel.send('You do not have the DJ role.');
       return;
     }
