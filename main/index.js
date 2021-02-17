@@ -27,10 +27,11 @@ if (autoLogin) client.login(token);
 client.on('ready', () => {
   console.log(`\nReady, logged in as ${client.user.tag}\n`);
   client.user.setPresence({
-    game: {
+    activity: {
       name: 'music.',
       type: 'playing',
     },
+    status: 'online',
   });
 });
 client.on('error', (err) => console.error(err));
