@@ -1,6 +1,8 @@
 // Import dependencies
 const ytsr = require('ytsr');
 const ytpl = require('ytpl');
+const translate = require('@vitalets/google-translate-api');
+
 const EventEmitter = require('events');
 const djEvent = new EventEmitter();
 
@@ -60,7 +62,7 @@ function dj(message, serverQueue, inCMD, client) {
     } else {
       switch (inCMD[1]) {
         case 'add':
-          if (!inCMD[2]) resolve('Usage: .dj add "srch1" "srch2" "srch3"...');
+          if (!inCMD[2]) resolve('Usage: **.dj add "srch1" "srch2" "srch3"...**');
           else {
             add(message, serverQueue, inCMD, djEvent)
                 .then((res) => {resolve(res);})
@@ -205,6 +207,12 @@ function test(message, serverQueue, inCMD, client) {
             resolve('Done.');
             break;
 
+          case 'translate':
+            translate(inCMD[2], { to: 'en' })
+                .then(async (res) => {resolve(`Translated message:\n*${await res.text}*`);})
+                .catch((err) => {reject(err);});
+            break;
+
           default:
             resolve(`Not a command: **${inCMD.join(' ')}**`);
             break;
@@ -286,8 +294,6 @@ module.exports = {
   sleep,
 };
 
-
-/* LOCAL FUNCTION */
 // List queue
 function list(message, serverQueue) {
   return new Promise((resolve, reject) => {
