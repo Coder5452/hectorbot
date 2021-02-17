@@ -28,8 +28,8 @@ client.on('ready', () => {
   console.log(`\nReady, logged in as ${client.user.tag}\n`);
   client.user.setPresence({
     activity: {
-      name: 'music.',
-      type: 'playing',
+      name: 'music',
+      type: 'PLAYING',
     },
     status: 'online',
   });
@@ -85,6 +85,12 @@ client.on('message', async (inMessage) => {
       inMessage.channel.send(`Not a command: **${inCMD.join(' ')}**`);
     } else console.error(err);
   }
+});
+
+/* New user event */
+client.on('guildMemberAdd', async (member) => {
+  console.log(`New user: ${member.user.username}`);
+  console.log(member.roles.cache);
 });
 
 /* Slash Command Parsing */
