@@ -3,8 +3,6 @@ __DJ Commands__:
   **Add** - Enqueues a song with a provided url or name **(.dj add "Billy Joel - Piano Man" or .dj add <https://www.youtube.com/watch?v=ENXvZ9YRjbo>)**
     -All song names need to be wrapped in quotes
     -Will add as many songs as you put after add
-  **Play** - Starts playing any songs in the queue **(.dj play)**
-    -Songs will start automatically when enqueued, use this if that doesn't happen
   **Stop** - Clears the queue and stops any music playing **(.dj stop)**
   **Skip** - Starts playing the next song in the queue **(.dj skip)**
   **Volume** - Sets the volume that the bot uses **(.dj vol 25)**
