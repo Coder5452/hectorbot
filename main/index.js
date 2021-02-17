@@ -88,10 +88,10 @@ client.on('message', async (inMessage) => {
 });
 
 /* New user event */
-client.on('guildMemberAdd', async (member) => {
-  console.log(`New user: ${member.user.username}`);
-  console.log(member.roles.cache);
-});
+// client.on('guildMemberAdd', async (member) => {
+//   console.log(`New user: ${member.user.username}`);
+//   console.log(member.roles.cache);
+// });
 
 /* Slash Command Parsing */
 client.ws.on('INTERACTION_CREATE', async (interaction) => {

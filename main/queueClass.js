@@ -2,14 +2,15 @@ const fs = require('fs');
 const ytdl = require('ytdl-core-discord');
 const path = require('path');
 
-module.exports.Queue = class Queue  {
-  constructor(inVC, inTC, inVol, inRoles) {
+module.exports.Queue = class Queue {
+  constructor(inVC, inTC, inVol, inRoles/* , inNewMemRole */) {
     this.voiceChannel = !inVC ? null : inVC;
     this.textChannel = inTC;
     this.guildID = inTC.guild.id;
     this.dispatcher = null;
     this.songs = [];
     this.roles = !inRoles ? [] : inRoles;
+    // this.newMemberRole = !inNewMemRole ? null : inNewMemRole;
     this.volume = !inVol ? 0.1 : inVol;
     this.playing = false;
     this.paused = false;
@@ -43,6 +44,10 @@ module.exports.Queue = class Queue  {
 
     return `Changed volume to **${inVol * 100}%**.`;
   }
+
+  // setNewMemberRole(roleID) {
+  //   this.newMemberRole = roleID;
+  // }
 
   // Getter methods
   getVC() {

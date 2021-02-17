@@ -261,6 +261,15 @@ function mod(message, serverQueue, inCMD, client) {
             });
         break;
 
+        // case 'setRole':
+        //   if (message.mentions.roles.size === 0) resolve('Usage: **.mod setRole @ROLE**');
+        //   else {
+        //      const newMemRole = Array.from(message.mentions.roles.keys())[0];
+        //     serverQueue.setNewMemberRole(newMemRole);
+        //     resolve(`Set the new member role to <@&${newMemRole}>`);
+        //   }
+        //   break;
+
       default:
         resolve(`Not a command: **${inCMD.join(' ')}**`);
     }
