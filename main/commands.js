@@ -207,12 +207,6 @@ function test(message, serverQueue, inCMD, client) {
             resolve('Done.');
             break;
 
-          case 'translate':
-            translate(inCMD[2], { to: 'en' })
-                .then(async (res) => {resolve(`Translated message:\n*${await res.text}*`);})
-                .catch((err) => {reject(err);});
-            break;
-
           default:
             resolve(`Not a command: **${inCMD.join(' ')}**`);
             break;
@@ -284,6 +278,22 @@ function mod(message, serverQueue, inCMD, client) {
   });
 }
 
+function tools(message, serverQueue, inCMD, client) {
+  return new Promise((resolve, reject) => {
+    switch (inCMD[1]) {
+      case 'translate':
+        translate(inCMD[2], { to: 'en' })
+            .then(async (res) => {resolve(`Translated message:\n*${await res.text}*`);})
+            .catch((err) => {reject(err);});
+
+        break;
+
+      default:
+        resolve(`Invalid command: **${inCMD.join(' ')}**`);
+    }
+  });
+}
+
 // Export file functions
 module.exports = {
   queue,
@@ -291,6 +301,7 @@ module.exports = {
   role,
   test,
   mod,
+  tools,
   sleep,
 };
 
