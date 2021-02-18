@@ -174,7 +174,7 @@ function role(message, serverQueue, inCMD, client) {
 function test(message, serverQueue, inCMD, client) {
   return new Promise((resolve, reject) => {
     if (message != null && message.author.id !== '122902985314533379') {
-      resolve('Test commands are only available to owner');
+      resolve('Test commands are only available to the bot\'s owner.');
     } else {
       try {
         switch (inCMD[1]) {
