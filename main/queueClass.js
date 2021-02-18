@@ -182,7 +182,7 @@ module.exports.Queue = class Queue {
       };
 
       fs.writeFileSync(
-          path.join(__dirname, `\\server_configs\\${this.guildID}.txt`),
+          path.join(__dirname, `\\server_configs\\${this.guildID}.json`),
           JSON.stringify(saveData),
       );
 
@@ -194,7 +194,7 @@ module.exports.Queue = class Queue {
   async loadQueue() {
     try {
       const data = await JSON.parse(
-          await fs.readFileSync(path.join(__dirname, `\\server_configs\\${this.guildID}.txt`)),
+          await fs.readFileSync(path.join(__dirname, `\\server_configs\\${this.guildID}.json`)),
       );
 
       this.roles = data.roles;
